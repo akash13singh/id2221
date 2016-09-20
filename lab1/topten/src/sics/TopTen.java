@@ -21,20 +21,20 @@ import org.apache.commons.logging.LogFactory;
 public class TopTen {
 
     public static class TopTenMapper extends Mapper<Object, Text, NullWritable, Text> {
-        
+
         // Stores a map of user reputation to the record
         private TreeMap<Integer,Text> repToRecordMap = new TreeMap<Integer,Text>();
-        
+
         //log handler for logging
         private static final Log log = LogFactory.getLog(TopTenMapper.class);
-    
+
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            
+
             //uncomment this to see that value is an single xml record. 
             //log.info("======>"+value);
-    
+
             Map<String, String> parsed = transformXmlToMap(value.toString());
-            
+
             //retrieve relevant information from the map
             String displayName = parsed.get("DisplayName");
             String reputation = parsed.get("Reputation");
@@ -59,23 +59,23 @@ public class TopTen {
 
 
     public static class TopTenReducer extends Reducer<NullWritable, Text, NullWritable, Text> {
-        
+
         private TreeMap<Integer, Text> repToRecordMap = new TreeMap<Integer, Text>();
         public static final Log log = LogFactory.getLog(TopTenReducer.class);
 
         public void reduce(NullWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-	    String displayName;
-	    int reputation;
+            String displayName;
+            int reputation;
             for (Text value : values) {
 
                 String[] arr = value.toString().split("::");
                 displayName = arr[0];
-		try{
-		        reputation = Integer.parseInt(arr[1]);
-        }
-		catch(NumberFormatException nfe){
-			continue;
-		}	
+                try{
+                    reputation = Integer.parseInt(arr[1]);
+                }
+                catch(NumberFormatException nfe){
+                    continue;
+                }	
                 repToRecordMap.put(reputation,new Text(displayName+"::"+reputation));
 
                 //if the size of tree map becomes more than 10 records, delete the minimum key from map
@@ -83,7 +83,7 @@ public class TopTen {
                     repToRecordMap.remove(repToRecordMap.firstKey());
                 }  
             }
-	    log.info("=====>Final Map Size:"+repToRecordMap.size());
+            log.info("=====>Final Map Size:"+repToRecordMap.size());
             for (Text t : repToRecordMap.descendingMap().values()) {
                 // Output our ten records to the file system with a null key
                 context.write(NullWritable.get(), t);
@@ -92,9 +92,9 @@ public class TopTen {
     }   
 
     /*
-    * Utility function to trasnform xml string into map.
-    * Code taken from https://github.com/adamjshook/mapreducepatterns/blob/master/MRDP/src/main/java/mrdp/utils/MRDPUtils.java 
-    */
+     * Utility function to trasnform xml string into map.
+     * Code taken from https://github.com/adamjshook/mapreducepatterns/blob/master/MRDP/src/main/java/mrdp/utils/MRDPUtils.java 
+     */
     public static Map<String, String> transformXmlToMap(String xml) {
         Map<String, String> map = new HashMap<String, String>();
         try {
@@ -116,8 +116,8 @@ public class TopTen {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        
-	Job job = Job.getInstance(conf, "TopTen");
+
+        Job job = Job.getInstance(conf, "TopTen");
         job.setJarByClass(TopTen.class);
 
         job.setMapperClass(TopTenMapper.class);
