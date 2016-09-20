@@ -36,12 +36,12 @@ public class TopTen {
             Map<String, String> parsed = transformXmlToMap(value.toString());
             
             //retrieve relevant information from the map
-            String accountId = parsed.get("Id");
+            String displayName = parsed.get("DisplayName");
             String reputation = parsed.get("Reputation");
-            if(accountId == null || "".equals(accountId.trim()) || reputation==null || "".equals(reputation.trim())) return;
+            if(displayName == null || "".equals(displayName.trim()) || reputation==null || "".equals(reputation.trim())) return;
 
             // Add this record to TreeMap using reputation as the key
-            repToRecordMap.put(Integer.parseInt(reputation),new Text(value));
+            repToRecordMap.put(Integer.parseInt(reputation),new Text(displayName+"::"+reputation));
 
             // if the size of tree map becomes more than 10 records, delete the minimum key from map
             if (repToRecordMap.size() > 10) {
@@ -64,20 +64,19 @@ public class TopTen {
         public static final Log log = LogFactory.getLog(TopTenReducer.class);
 
         public void reduce(NullWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-	    int accountId;
+	    String displayName;
 	    int reputation;
             for (Text value : values) {
 
-                Map<String, String> parsed = transformXmlToMap(value.toString());
-                String displayName = parsed.get("DisplayName");
+                String[] arr = value.toString().split("::");
+                displayName = arr[0];
 		try{
-			accountId = Integer.parseInt(parsed.get("Id"));
-		        reputation = Integer.parseInt(parsed.get("Reputation"));
-		}
+		        reputation = Integer.parseInt(arr[1]);
+        }
 		catch(NumberFormatException nfe){
 			continue;
 		}	
-                repToRecordMap.put(Integer.parseInt(parsed.get("Reputation")),new Text(accountId+"::"+displayName+"::"+reputation));
+                repToRecordMap.put(reputation,new Text(displayName+"::"+reputation));
 
                 //if the size of tree map becomes more than 10 records, delete the minimum key from map
                 if (repToRecordMap.size() > 10) {
