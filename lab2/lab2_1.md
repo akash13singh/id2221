@@ -37,11 +37,11 @@ x.collect()
 > res6: Array[Int] = Array(1, 2, 3, 4, 5, 6, 7, 8, 9)
 > <pre>
 
-> ![generated image 0](./images/image-0.png)
+> ![generated image 0](./images_1/image-0.png)
 
-> ![generated image 1](./images/image-1.png)
+> ![generated image 1](./images_1/image-1.png)
 
-> ![generated image 2](./images/image-2.png)
+> ![generated image 2](./images_1/image-2.png)
 
 
 ```scala
