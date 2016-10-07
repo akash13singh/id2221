@@ -14,11 +14,14 @@ object SGen {
     val config = new ProducerConfig(props)
     val producer = new Producer[String, String](config)
     val topic = "avg"
-
+    var i =0
+    //to test change while(true) to soething like while(i<20)
     while (true) {
       Thread.sleep(10)
-      producer.send(new KeyedMessage[String, String](topic, null, getRandomVal))
-      println("generated: " + getRandomVal)
+      val r = getRandomVal
+      producer.send(new KeyedMessage[String, String](topic, null, r))
+      println("generated: " + r)
+      i=i+1
     }
 
     producer.close
