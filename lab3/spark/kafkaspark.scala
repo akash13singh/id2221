@@ -25,7 +25,7 @@ object KafkaWordCount {
        //val messages = KafkaUtils.createStream[String, String, DefaultDecoder, StringDecoder]()
        val messages = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc,kafkaConf,Set("avg"))
 
-       // the messages are of format: key,"a,24"
+       // the messages are of format: <key,"a,24">
        // ignore the key, use the value to extract the letter and value and form pais (a,24)
        val pairs = messages.map(s=>(s._2.split(",")(0),s._2.split(",")(1).toInt))
        
